@@ -26,7 +26,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = document.getElementById('procedureDate').value;
 
         if (!type || !date) {
-            alert('Please select procedure type and date');
+            var errEl = document.getElementById('symptomResults');
+            if (typeof InputGuards !== 'undefined' && InputGuards.formatError && errEl) {
+                errEl.innerHTML = InputGuards.formatError('Please select procedure type and date');
+                errEl.style.display = 'block';
+            } else {
+                alert('Please select procedure type and date');
+            }
+            return;
+        }
+
+        if (isNaN(new Date(date).getTime())) {
+            var errEl2 = document.getElementById('symptomResults');
+            if (typeof InputGuards !== 'undefined' && InputGuards.formatError && errEl2) {
+                errEl2.innerHTML = InputGuards.formatError('Please enter a valid procedure date.');
+                errEl2.style.display = 'block';
+            } else {
+                alert('Please enter a valid date');
+            }
             return;
         }
 
@@ -131,7 +148,19 @@ function generatePiercingTimeline(location, date) {
     const timeline = piercingTimelines[location];
     if (!timeline) return;
 
-    const daysElapsed = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
+    // Validate date input
+    if (!date || isNaN(new Date(date).getTime())) {
+        if (typeof InputGuards !== 'undefined' && InputGuards.formatError) {
+            document.getElementById('symptomResults').innerHTML = InputGuards.formatError('Please enter a valid procedure date.');
+            document.getElementById('symptomResults').style.display = 'block';
+        } else {
+            alert('Please enter a valid procedure date.');
+        }
+        return;
+    }
+    const procDate = new Date(date);
+    const today = new Date();
+    const daysElapsed = Math.max(0, Math.floor((today - procDate) / (1000 * 60 * 60 * 24)));
 
     // Build healing disc recommendation if applicable
     let healingDiscAlert = '';
@@ -175,7 +204,19 @@ function generateTattooTimeline(size, date) {
     const timeline = tattooTimelines[size];
     if (!timeline) return;
 
-    const daysElapsed = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
+    // Validate date input
+    if (!date || isNaN(new Date(date).getTime())) {
+        if (typeof InputGuards !== 'undefined' && InputGuards.formatError) {
+            document.getElementById('symptomResults').innerHTML = InputGuards.formatError('Please enter a valid procedure date.');
+            document.getElementById('symptomResults').style.display = 'block';
+        } else {
+            alert('Please enter a valid procedure date.');
+        }
+        return;
+    }
+    const procDate = new Date(date);
+    const today = new Date();
+    const daysElapsed = Math.max(0, Math.floor((today - procDate) / (1000 * 60 * 60 * 24)));
 
     document.getElementById('timelineResults').innerHTML = `
         <div class="timeline-header">
