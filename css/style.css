@@ -284,44 +284,13 @@ button {
   font-size: 20px;
 }
 
-/* Ko-fi Button */
-.healing-tracker__kofi-button {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  background: #FF5E5B;
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 0.9rem;
-  text-decoration: none;
-}
+/
 
-.healing-tracker__kofi-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  background: #FF4E4B;
-}
 
-.kofi-icon {
-  font-size: 1.1rem;
-  line-height: 1;
-}
 
-.kofi-text {
-  white-space: nowrap;
-}
 
-/* Hide kofi text on small screens */
-@media (max-width: 480px) {
-  .kofi-text {
-    display: none;
-  }
-}
+
+
 
 /* =====================================================
    TOOL HEADER
