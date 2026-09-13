@@ -1,10 +1,12 @@
-document.addEventListener('DOMContentLoaded', function() {
+function initTracker() {
     // Elements
     const procedureType = document.getElementById('procedureType');
     const piercingLocationGroup = document.getElementById('piercingLocationGroup');
     const tattooSizeGroup = document.getElementById('tattooSizeGroup');
     const startTracking = document.getElementById('startTracking');
     const resultsSection = document.getElementById('resultsSection');
+
+    if (!procedureType || !startTracking) return;
 
     // Show/hide based on procedure type
     procedureType.addEventListener('change', function() {
@@ -28,10 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!type || !date) {
             var errEl = document.getElementById('symptomResults');
             if (typeof InputGuards !== 'undefined' && InputGuards.formatError && errEl) {
-                errEl.innerHTML = InputGuards.formatError('Please select procedure type and date');
+                errEl.innerHTML = InputGuards.formatError(window.t('tracker.errorSelectTypeAndDate'));
                 errEl.style.display = 'block';
             } else {
-                alert('Please select procedure type and date');
+                alert(window.t('tracker.errorSelectTypeAndDate'));
             }
             return;
         }
@@ -39,10 +41,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isNaN(new Date(date).getTime())) {
             var errEl2 = document.getElementById('symptomResults');
             if (typeof InputGuards !== 'undefined' && InputGuards.formatError && errEl2) {
-                errEl2.innerHTML = InputGuards.formatError('Please enter a valid procedure date.');
+                errEl2.innerHTML = InputGuards.formatError(window.t('tracker.errorValidDate'));
                 errEl2.style.display = 'block';
             } else {
-                alert('Please enter a valid date');
+                alert(window.t('tracker.errorValidDate'));
             }
             return;
         }
@@ -50,14 +52,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (type === 'piercing') {
             const location = document.getElementById('piercingLocation').value;
             if (!location) {
-                alert('Please select piercing location');
+                alert(window.t('tracker.errorSelectPiercingLoc'));
                 return;
             }
             generatePiercingTimeline(location, date);
         } else {
             const size = document.getElementById('tattooSize').value;
             if (!size) {
-                alert('Please select tattoo size');
+                alert(window.t('tracker.errorSelectTattooSize'));
                 return;
             }
             generateTattooTimeline(size, date);
@@ -66,6 +68,14 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsSection.style.display = 'block';
         resultsSection.scrollIntoView({ behavior: 'smooth' });
         generateChecklist(type);
+
+        const jewelrySection = document.getElementById('jewelryLongevitySection');
+        if (jewelrySection) jewelrySection.style.display = type === 'piercing' ? '' : 'none';
+        if (type === 'piercing' && window.JewelryLongevity) {
+            window.JewelryLongevity.syncWithTracker();
+            window.JewelryLongevity.calculate();
+        }
+        if (window.Visualizer && window.Visualizer.updateTelemetry) window.Visualizer.updateTelemetry();
     });
 
     // Symptom checker
@@ -74,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const resultsDiv = document.getElementById('symptomResults');
 
         if (symptoms.length === 0) {
-            alert('Please select at least one symptom');
+            alert(window.t('tracker.errorSelectOneSymptom'));
             return;
         }
 
@@ -90,39 +100,39 @@ document.addEventListener('DOMContentLoaded', function() {
         let severity, message, cssClass, healingDiscSolution = '';
 
         if (concerning.length > 0) {
-            severity = 'Concerning';
+            severity = window.t('tracker.severityConcerning');
             cssClass = 'concerning';
-            message = '⚠️ These symptoms require professional attention. Contact your piercer/artist or healthcare provider immediately.';
+            message = window.t('tracker.msgConcerning');
             healingDiscSolution = `
                 <div class="symptom-disc-solution">
-                    <p><strong>💎 Professional Recommendation:</strong> While you seek medical attention, ask your piercer about Poli International Healing Discs. They may help prevent further irritation and provide antimicrobial protection during recovery.</p>
+                    <p><strong>${window.t('tracker.solutionConcerningTitle')}</strong> ${window.t('tracker.solutionConcerningBody')}</p>
                 </div>
             `;
         } else if (monitor.length > 0) {
-            severity = 'Monitor Closely';
+            severity = window.t('tracker.severityMonitor');
             cssClass = 'monitor';
-            message = '👀 These symptoms should be monitored. If they worsen or don\'t improve in 24-48 hours, contact your professional.';
+            message = window.t('tracker.msgMonitor');
             if (needsHealingDiscs) {
                 healingDiscSolution = `
                     <div class="symptom-disc-solution">
-                        <p><strong>💎 Solution:</strong> These symptoms often indicate metal irritation or bacterial buildup. <strong>Poli International Healing Discs</strong> can help by:</p>
+                        <p><strong>${window.t('tracker.solutionMonitorTitle')}</strong> ${window.t('tracker.solutionMonitorIntro')}</p>
                         <ul>
-                            <li>Eliminating metal-to-skin contact that causes irritation</li>
-                            <li>Providing antimicrobial silver ion protection against bacteria</li>
-                            <li>Preventing irritation bumps from developing further</li>
-                            <li>Creating a protective barrier during healing</li>
+                            <li>${window.t('tracker.solutionMonitorBenefit1')}</li>
+                            <li>${window.t('tracker.solutionMonitorBenefit2')}</li>
+                            <li>${window.t('tracker.solutionMonitorBenefit3')}</li>
+                            <li>${window.t('tracker.solutionMonitorBenefit4')}</li>
                         </ul>
-                        <p>Many piercers recommend healing discs specifically for these symptoms.</p>
+                        <p>${window.t('tracker.solutionMonitorOutro')}</p>
                     </div>
                 `;
             }
         } else {
-            severity = 'Normal';
+            severity = window.t('tracker.severityNormal');
             cssClass = 'normal';
-            message = '✅ These symptoms are typical for healing. Continue your aftercare routine.';
+            message = window.t('tracker.msgNormal');
             healingDiscSolution = `
                 <div class="symptom-disc-solution">
-                    <p><strong>💎 Prevent Future Issues:</strong> Even with normal healing, Poli International Healing Discs can prevent irritation bumps, keloids, and infections before they start. Recommended for all cartilage, navel, and surface piercings.</p>
+                    <p><strong>${window.t('tracker.solutionNormalTitle')}</strong> ${window.t('tracker.solutionNormalBody')}</p>
                 </div>
             `;
         }
@@ -137,12 +147,49 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Reset checklist
-    document.getElementById('resetChecklist').addEventListener('click', function() {
-        document.querySelectorAll('#aftercareChecklist input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
+    const resetChecklistBtn = document.getElementById('resetChecklist');
+    if (resetChecklistBtn) {
+        resetChecklistBtn.addEventListener('click', function() {
+            document.querySelectorAll('#aftercareChecklist input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
         });
-    });
-});
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTracker);
+} else {
+    initTracker();
+}
+
+// Index of the stage a procedure is in, from English names like "Week 3-6: Active
+// Healing". Stage i starts on the first day of its lower bound; the last stage
+// that has started is current. Unparseable names fall back to the first stage.
+function currentStageIndex(group, key, count, daysElapsed) {
+    const en = window.I18N_DICTIONARY && window.I18N_DICTIONARY.en;
+    const stages = en && en[group] && en[group][key] && en[group][key].stages;
+    const UNIT = { day: 1, week: 7, month: 30 };
+    const day = daysElapsed + 1;
+    let current = 0;
+    for (let i = 0; i < count; i++) {
+        const m = /^(Day|Week|Month)s?\s+(\d+)/i.exec((stages && stages[i] && stages[i].stage) || '');
+        if (m && (Number(m[2]) - 1) * UNIT[m[1].toLowerCase()] + 1 <= day) current = i;
+    }
+    return current;
+}
+
+function stageCards(stages, active) {
+    return stages.map((stage, i) => `
+                <div class="stage-card${i === active ? ' timeline-step--active' : ''}"${i === active ? ' aria-current="step"' : ''}>
+                    <h4 class="timeline-step__title">${stage.stage}</h4>
+                    <p><strong>${window.t('tracker.whatToExpect')}</strong></p>
+                    <ul>${stage.symptoms.map(s => `<li>${s}</li>`).join('')}</ul>
+                    <p><strong>${window.t('tracker.careInstructions')}</strong></p>
+                    <ul>${stage.care.map(c => `<li>${c}</li>`).join('')}</ul>
+                </div>
+            `).join('');
+}
 
 function generatePiercingTimeline(location, date) {
     const timeline = piercingTimelines[location];
@@ -151,10 +198,10 @@ function generatePiercingTimeline(location, date) {
     // Validate date input
     if (!date || isNaN(new Date(date).getTime())) {
         if (typeof InputGuards !== 'undefined' && InputGuards.formatError) {
-            document.getElementById('symptomResults').innerHTML = InputGuards.formatError('Please enter a valid procedure date.');
+            document.getElementById('symptomResults').innerHTML = InputGuards.formatError(window.t('tracker.errorValidDate'));
             document.getElementById('symptomResults').style.display = 'block';
         } else {
-            alert('Please enter a valid procedure date.');
+            alert(window.t('tracker.errorValidDate'));
         }
         return;
     }
@@ -169,10 +216,10 @@ function generatePiercingTimeline(location, date) {
             <div class="healing-disc-recommendation">
                 <div class="healing-disc-rec-icon">💎</div>
                 <div class="healing-disc-rec-content">
-                    <h4>Healing Disc Recommendation for ${timeline.name}</h4>
+                    <h4>${window.t('tracker.healingDiscRecTitle', { name: timeline.name })}</h4>
                     <p>${timeline.healingDiscBenefits}</p>
                     <p class="healing-disc-rec-footer">
-                        <strong>Poli International Healing Discs</strong> combine medical-grade elastomer with silver ion antimicrobial technology to prevent bumps, keloids, and infections while eliminating metal-to-skin contact.
+                        ${window.t('tracker.healingDiscRecFooter')}
                     </p>
                 </div>
             </div>
@@ -181,21 +228,13 @@ function generatePiercingTimeline(location, date) {
 
     document.getElementById('timelineResults').innerHTML = `
         <div class="timeline-header">
-            <h3>${timeline.name} Piercing</h3>
-            <p>Day ${daysElapsed} of healing</p>
-            <p>Typical healing time: ${timeline.healing}</p>
+            <h3>${window.t('tracker.piercingTitle', { name: timeline.name })}</h3>
+            <p>${window.t('tracker.dayOfHealing', { day: daysElapsed })}</p>
+            <p>${window.t('tracker.typicalHealingTime', { time: timeline.healing })}</p>
         </div>
         ${healingDiscAlert}
         <div class="timeline-stages">
-            ${timeline.stages.map(stage => `
-                <div class="stage-card">
-                    <h4>${stage.stage}</h4>
-                    <p><strong>What to expect:</strong></p>
-                    <ul>${stage.symptoms.map(s => `<li>${s}</li>`).join('')}</ul>
-                    <p><strong>Care instructions:</strong></p>
-                    <ul>${stage.care.map(c => `<li>${c}</li>`).join('')}</ul>
-                </div>
-            `).join('')}
+            ${stageCards(timeline.stages, currentStageIndex('piercingTimeline', location, timeline.stages.length, daysElapsed))}
         </div>
     `;
 }
@@ -207,33 +246,26 @@ function generateTattooTimeline(size, date) {
     // Validate date input
     if (!date || isNaN(new Date(date).getTime())) {
         if (typeof InputGuards !== 'undefined' && InputGuards.formatError) {
-            document.getElementById('symptomResults').innerHTML = InputGuards.formatError('Please enter a valid procedure date.');
+            document.getElementById('symptomResults').innerHTML = InputGuards.formatError(window.t('tracker.errorValidDate'));
             document.getElementById('symptomResults').style.display = 'block';
         } else {
-            alert('Please enter a valid procedure date.');
+            alert(window.t('tracker.errorValidDate'));
         }
         return;
     }
     const procDate = new Date(date);
     const today = new Date();
     const daysElapsed = Math.max(0, Math.floor((today - procDate) / (1000 * 60 * 60 * 24)));
+    const sizeName = size.charAt(0).toUpperCase() + size.slice(1);
 
     document.getElementById('timelineResults').innerHTML = `
         <div class="timeline-header">
-            <h3>${size.charAt(0).toUpperCase() + size.slice(1)} Tattoo</h3>
-            <p>Day ${daysElapsed} of healing</p>
-            <p>Typical surface healing: ${timeline.healing}</p>
+            <h3>${window.t('tracker.tattooTitle', { size: sizeName })}</h3>
+            <p>${window.t('tracker.dayOfHealing', { day: daysElapsed })}</p>
+            <p>${window.t('tracker.typicalSurfaceHealing', { time: timeline.healing })}</p>
         </div>
         <div class="timeline-stages">
-            ${timeline.stages.map(stage => `
-                <div class="stage-card">
-                    <h4>${stage.stage}</h4>
-                    <p><strong>What to expect:</strong></p>
-                    <ul>${stage.symptoms.map(s => `<li>${s}</li>`).join('')}</ul>
-                    <p><strong>Care instructions:</strong></p>
-                    <ul>${stage.care.map(c => `<li>${c}</li>`).join('')}</ul>
-                </div>
-            `).join('')}
+            ${stageCards(timeline.stages, currentStageIndex('tattooTimeline', size, timeline.stages.length, daysElapsed))}
         </div>
     `;
 }
@@ -241,32 +273,43 @@ function generateTattooTimeline(size, date) {
 function generateChecklist(type) {
     const checklistDiv = document.getElementById('aftercareChecklist');
 
-    const piercingChecklist = [
-        'Clean with sterile saline spray 2x daily',
-        'Wash hands before touching piercing',
-        '💎 Use Poli healing discs to prevent irritation bumps & infections',
-        'DO NOT rotate jewelry',
-        'Avoid sleeping on piercing if possible',
-        'Check for signs of infection (redness, warmth, discharge)',
-        'Keep hair products away from piercing',
-        'Ensure healing discs are properly positioned on both ends'
+    const piercingKeys = [
+        'tracker.checklist.piercing1',
+        'tracker.checklist.piercing2',
+        'tracker.checklist.piercing3',
+        'tracker.checklist.piercing4',
+        'tracker.checklist.piercing5',
+        'tracker.checklist.piercing6',
+        'tracker.checklist.piercing7',
+        'tracker.checklist.piercing8'
     ];
 
-    const tattooChecklist = [
-        'Wash gently with fragrance-free soap',
-        'Apply thin layer of fragrance-free lotion',
-        'DO NOT pick or scratch',
-        'Avoid direct sunlight',
-        'Wear loose, clean clothing',
-        'Drink plenty of water'
+    const tattooKeys = [
+        'tracker.checklist.tattoo1',
+        'tracker.checklist.tattoo2',
+        'tracker.checklist.tattoo3',
+        'tracker.checklist.tattoo4',
+        'tracker.checklist.tattoo5',
+        'tracker.checklist.tattoo6'
     ];
 
-    const items = type === 'piercing' ? piercingChecklist : tattooChecklist;
+    const keys = type === 'piercing' ? piercingKeys : tattooKeys;
 
-    checklistDiv.innerHTML = items.map((item, i) => `
+    checklistDiv.innerHTML = keys.map((key, i) => `
         <label class="checklist-item">
             <input type="checkbox" id="check${i}">
-            <span>${item}</span>
+            <span>${window.t(key)}</span>
         </label>
     `).join('');
+
+    if (window.ProTips && typeof window.ProTips.update === 'function') {
+        const procDateInput = document.getElementById('procedureDate');
+        const procDateVal = procDateInput ? procDateInput.value : null;
+        let dayOffset = 0;
+        if (procDateVal && !isNaN(new Date(procDateVal).getTime())) {
+            const today = new Date();
+            dayOffset = Math.max(0, Math.floor((today - new Date(procDateVal)) / (1000 * 60 * 60 * 24)));
+        }
+        window.ProTips.update(type, dayOffset);
+    }
 }
