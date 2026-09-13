@@ -2242,6 +2242,15 @@
       });
     });
 
+    // Deep link: ?tab=touchup|docs|embed opens that tab. The retired Touch-Up
+    // Timeline page redirects to /healing-tracker/?tab=touchup, and the site page
+    // passes its query string on to this iframe.
+    (function () {
+      var m = /[?&]tab=(touchup|docs|embed|healing)(?:&|$)/.exec(window.location.search);
+      var btn = m && document.querySelector('.tool-tab[data-tab="' + m[1] + '"]');
+      if (btn) btn.click();
+    })();
+
     function copyEmbedCode() {
       var textarea = document.getElementById('embedCodeTab');
       if (textarea) {
