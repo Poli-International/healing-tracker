@@ -153,14 +153,14 @@
                 const input = form.querySelector('input');
                 const btn = form.querySelector('button');
                 if (!btn) return;
-                const originalText = btn.textContent;
+                const originalText = btn.innerHTML;
                 
                 btn.textContent = (window.t ? window.t('common.subscribed') : 'Subscribed');
                 btn.disabled = true;
                 if (input) input.value = '';
                 
                 setTimeout(() => {
-                    btn.textContent = originalText;
+                    btn.innerHTML = originalText;
                     btn.disabled = false;
                 }, 3000);
             });
