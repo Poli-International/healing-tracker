@@ -205,9 +205,9 @@
       const text = codeEl.textContent || codeEl.innerText;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function() {
-          const orig = btnElement.textContent;
+          const orig = btnElement.innerHTML;
           btnElement.textContent = 'Copied!';
-          setTimeout(function() { btnElement.textContent = orig; }, 2000);
+          setTimeout(function() { btnElement.innerHTML = orig; }, 2000);
         }).catch(function() {});
       }
     }
